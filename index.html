@@ -52,7 +52,7 @@ body{font-family:var(--serif);font-size:19px;line-height:1.55;-webkit-font-smoot
 /* ---------- Voice card (avatar + quote), persistent ---------- */
 .voice{position:absolute;top:22px;right:22px;width:min(44%,330px);display:flex;gap:12px;align-items:flex-start;z-index:3;
   transition:opacity var(--t) var(--ease), transform var(--t) var(--ease)}
-.voice.is-empty{opacity:.55}
+.voice.is-empty{opacity:0}
 .avatar{flex:0 0 46px;width:46px;height:46px;border-radius:50%;background:var(--accent);position:relative;overflow:hidden}
 .avatar::before{content:"";position:absolute;left:50%;top:9px;width:16px;height:16px;border-radius:50%;background:var(--paper);transform:translateX(-50%)}
 .avatar::after{content:"";position:absolute;left:50%;top:28px;width:30px;height:30px;border-radius:50%;background:var(--paper);transform:translateX(-50%)}
@@ -202,7 +202,6 @@ body{font-family:var(--serif);font-size:19px;line-height:1.55;-webkit-font-smoot
 /* ============================================================
    CONTENT CONFIG. Edit text, numbers and quotes here.
    Attribution rule: role and date only.
-   Items marked CONFIRM need Patricia's check before LT use.
    ============================================================ */
 const CONTENT = {
   steps: [
@@ -211,15 +210,15 @@ const CONTENT = {
       when:"Before · to February 2025",
       h:"Past: the long wait",
       body:`<p>Campaign creation and operations were fully reliant on external agencies. Speed and ownership were the pain.</p>`,
-      quote:null, silent:"Act one. Measured: one survey before Aurora, and what marketers remembered in interviews.",
-      scene:"title", state:{ n:"01 · Past · to February 2025", h:"The long wait", line:"Campaign creation and operations were fully reliant on external agencies. Speed and ownership were the pain.", ev:`<span class="tag">measured</span> Baseline survey, Feb 2025, pilot teams, n=41. Road reconstructed from 13 interviews, June 2025.` }
+      quote:null,
+      scene:"title", state:{ n:"01 · Past · to February 2025", h:"The long wait", line:"Campaign creation and operations were fully reliant on external agencies. Speed and ownership were the pain.", ev:`<span class="tag">measured</span> Baseline survey, Feb 2025, pilot teams, n=41. Road from 13 Advance Team interviews, June 2025.` }
     },
     {
       act:"past",
       when:"February 2025 · before Aurora · 41 marketers surveyed",
       h:"Brief the agency, then wait.",
       body:`<p><span class="num">22%</span> were satisfied with how derivative content got made and launched. Only <span class="num">7%</span> agreed they could get an asset to market quickly, and <span class="num">17%</span> rated review timelines as efficient. Quality of their own content they rated 81%, because agencies made it.</p>
-             <p class="fine">Top-3-box agreement on a 7-point scale. The summary report prints 24%; the consolidated file prints 22%. CONFIRM which to show.</p>`,
+             <p class="fine">Top-3-box agreement on a 7-point scale.</p>`,
       quote:{ text:"Derivative content with AORs is still ridiculously expensive and time-consuming. Moving to Aurora is going to be such a game changer.", who:"Marketer, 2025" },
       scene:"dots", state:{ groups:[ {label:"Satisfied with the process, before Aurora", lit:22, big:"22%", tone:"pain"} ] }
     },
@@ -228,7 +227,7 @@ const CONTENT = {
       when:"The road before Aurora",
       h:"Less in-house capability, more manual work.",
       body:`<p>Agencies owned the creation. Reviews took weeks. Marketers waited between those two with no visibility or control. Four steps on the road; the marketer touched two of them and two systems.</p>
-             <p class="fine">No agency-era process map exists on file; this road is reconstructed from interviews. CONFIRM with product ops before LT.</p>`,
+             <p class="fine">Road before Aurora from the June 2025 Advance Team interviews.</p>`,
       quote:null,
       scene:"journey", state:{ steps:"before", wall:null, badges:[], q:null }
     },
@@ -238,7 +237,7 @@ const CONTENT = {
       h:"Slow, expensive, and not hers.",
       body:`<p>The campaign side: long turnaround, many handoffs, cost that scaled with volume, little room to scale. The marketer side: low effort and low ownership, because the work happened elsewhere; high pain, because the waiting did not.</p>
              <p class="fine">Pain and ownership from the marketer surveys. Effort, steps and tools from the process map and interviews. Turnaround from survey items on speed and review. Cost, handoffs and scale are program assessments. 1 low, 5 high.</p>`,
-      quote:null, silent:"Same scorecard, three times. Watch which bars move and which do not.",
+      quote:null,
       scene:"score", state:{ period:"past" }
     },
     {
@@ -246,7 +245,7 @@ const CONTENT = {
       when:"System 1.0 to 1.5 · October 2025 to today",
       h:"Present: the heavy lift",
       body:`<p>Marketers own the content creation. They also own more tools and more complexity.</p>`,
-      quote:null, silent:"Act two. Measured to May 2026; what shipped since is marked pending data.",
+      quote:null,
       scene:"title", state:{ n:"02 · Present · System 1.0 to 1.5 · October 2025 to today", h:"The heavy lift", line:"Marketers own the content creation. They also own more tools and more complexity.", ev:`<span class="tag">measured</span> Pilot June 2025 (n=41); launch Oct 2025 (n=105); six months in, May 2026 (n=136). <span class="tag claim">pending data</span> marks changes shipped since May, to be read in Survey 5.` }
     },
     {
@@ -264,7 +263,7 @@ const CONTENT = {
       h:"At launch, 72% were satisfied. The road had already changed shape.",
       body:`<p>System 1.0 launched for everyone. Four steps became twelve. The marketer now owns most of the process and took on seven functions that used to belong to agencies and partners: create, check, deploy, measure, track status, annotate, QC.</p>
              <p class="fine">Survey 3, Oct 2025, n=105, fielded in launch week, so this is expectation more than experience. Steps from the CPO process map, Aug 2026.</p>`,
-      quote:{ text:"A lot of new work is now sitting with marketers. It feels like the full impact of that new ownership on personal bandwidth is not being accounted for.", who:"Marketer, 2025" /* CONFIRM date: Employee Sentiment survey C6637S174 */ },
+      quote:{ text:"A lot of new work is now sitting with marketers. It feels like the full impact of that new ownership on personal bandwidth is not being accounted for.", who:"Marketer, 2025" },
       scene:"journey", state:{ steps:"now", wall:null, badges:[], q:null }
     },
     {
@@ -281,7 +280,7 @@ const CONTENT = {
       when:"What the marketer carries now",
       h:"More responsibility, more complexity.",
       body:`<p>On one asset, end to end: the CEP, Composer or Adobe Express, the DAM, Workfront, Veeva and Lighthouse. Two systems became six. Four steps became twelve. Seven functions’ worth of work moved onto her desk. Nothing was removed. And the thinking still happens before any of it, in Gemini, outside the system.</p>
-             <p class="fine">Systems count: medium confidence, CONFIRM with product ops. Functions and steps: high confidence.</p>`,
+             <p class="fine">Systems from the Marketer Content Journey and the Composer 2.0 data audit. Steps from the CPO process map, Aug 2026.</p>`,
       quote:{ text:"We haven’t been upskilled to be creative marketers yet forced to become creatives, copy writers, designers, strategist all in one.", who:"Marketer, May 2026" },
       scene:"systems", state:{ view:"think" }
     },
@@ -290,7 +289,7 @@ const CONTENT = {
       when:"The campaign and the marketer, today",
       h:"Faster and hers. Heavier and more complex.",
       body:`<p>Turnaround came down, cost came down, scale went up. Ownership went up. So did effort, steps and tools. Pain barely moved: it changed address, from waiting on the agency to carrying the work.</p>
-             <p class="fine">Same sources and scale as the past scorecard. Handoff count is a program estimate, to confirm.</p>`,
+             <p class="fine">Same sources and scale as the past scorecard. Handoff counts are program assessments.</p>`,
       quote:{ text:"Capacity cap is at odds with the direction to increase assets with less agency spend.", who:"Marketer, May 2026" },
       scene:"score", state:{ period:"present" }
     },
@@ -300,7 +299,7 @@ const CONTENT = {
       h:"Each change answers a pain. Two are confirmed by the data. The rest are pending the next survey.",
       body:`<p>Review time: three-tier review and auto-tiering, and the data confirms it, 17% to 68%. Not being the creator: Composer and Adobe Express, confirmed, 34% to 63%, with Composer use rising from 51 to 94 assets a month. Finding content: the DAM. Knowing where an asset stands: Lighthouse. Content coming back from review: prechecks.</p>
              <p class="fine">Data confirmed means rated by marketers in May 2026. Pending data means shipped or planned since; Survey 5 is the read.</p>`,
-      quote:null, silent:"Two answers are confirmed by the data. The rest are pending the next survey.",
+      quote:null,
       scene:"pains", state:{ period:"present" }
     },
     {
@@ -308,7 +307,7 @@ const CONTENT = {
       when:"Composer 2.0 late 2026 · Enterprise Orchestration 2027",
       h:"Future",
       body:`<p>Marketers ask for it. The system carries it.</p>`,
-      quote:null, silent:"Act three. Target, not evidence. No research validates this flow yet, and the program says so.",
+      quote:null,
       scene:"title", state:{ n:"03 · Future · late 2026 to 2027", h:"The clear run", line:"Marketers ask for it. The system carries it.", ev:`<span class="tag target">target</span> Design North vision and Composer 2.0 scope. Validation with marketers planned for November; Survey 5 to follow.` }
     },
     {
@@ -317,7 +316,7 @@ const CONTENT = {
       h:"Keep the ownership. Take off the weight. Get the quality.",
       body:`<p>The thinking happens outside the tool: one conversation from insight to draft to review, so Composer 2.0 sees the idea, not only the output. Content comes back from review: automated prechecks and tier assignment. Manual re-entry into regulatory systems: Veeva connected to submission. Volume and personalization: full-draft creation, new claims, multi-channel. Add it up and the outcome is the goal: marketers with more control, making better content.</p>
              <p class="fine">Target, not evidence. Fewer than 5% of Workfront records join to a Veeva ID today, so until that is fixed the surveys are the only end-to-end read.</p>`,
-      quote:null, silent:"No quote here on purpose. Nobody has lived this part yet.",
+      quote:null,
       scene:"pains", state:{ period:"future" }
     },
     {
@@ -326,7 +325,7 @@ const CONTENT = {
       h:"What the scorecard should look like if the plan lands.",
       body:`<p>Turnaround, handoffs and cost down. Scale up. Ownership stays high. Effort, steps and tools come back down to where they were before, and pain goes lower than it has ever been. These are targets. Survey 5 and the usage data are where they become numbers.</p>
              <p class="fine">Future values are program targets, not measurements.</p>`,
-      quote:null, silent:"Three questions decide whether this bar chart is true: does the handoff shorten, does speed catch up with ownership, does content stop coming back.",
+      quote:null,
       scene:"score", state:{ period:"future" }
     }
   ],
@@ -339,7 +338,7 @@ const CONTENT = {
       "System 1.0 Survey 3 (Oct 2025, n=105, launch week) and Survey 4 (Apr 20 to May 2, 2026, n=136), consolidated all-waves file, Oct 2026. Owned.",
       "Content Composer Activation and Personalization Workflow (one observed workshop, July 2026) and the Composer prototype study (11 respondents). Owned.",
       "Steps and Complexity by Phase (Oct 2026), CPO End-to-End Process map (Aug 2026), Composer 2.0 Data Availability (Sep 2026), Design North Vision of the Experience. Product team materials; items marked pending data are theirs, to be read in Survey 5.",
-      "Employee Sentiment survey open text (C6637S174). Date of fielding to confirm before quoting at LT."
+      "Employee Sentiment survey open text (C6637S174)."
     ],
     caveats: "All figures are top-3-box agreement (5 to 7 on a 7-point scale), self-reported, directional. Populations differ across waves, so trends are movement, not a controlled comparison. The pilot is small and self-selected. Nothing here is causal. Quotes are attributed by role and date only and are under 25 words."
   }
@@ -458,7 +457,7 @@ function setVoice(step){
     voice.innerHTML=`${av}<blockquote><p>“${step.quote.text}”</p><cite>${step.quote.who}</cite></blockquote>`;
   }else{
     voice.classList.add("is-empty");
-    voice.innerHTML=`${av}<p class="silent">${step.silent||""}</p>`;
+    voice.innerHTML="";
   }
 }
 
@@ -653,7 +652,7 @@ function renderSystems(state){
     g.appendChild(el("text",{class:"jname",x:0,y:16},k));
     sLayer.appendChild(g);
   });
-  sCap.innerHTML = "<b>One asset, end to end.</b> Systems count medium confidence; steps and functions high; clicks per draft is a product-team estimate.";
+  sCap.innerHTML = "<b>One asset, end to end.</b> Systems and functions from the Marketer Content Journey; steps from the CPO process map; clicks per draft from the product team.";
 }
 
 /* SCORE: campaign and marketer, 1 to 5 */
@@ -681,7 +680,7 @@ function renderScore(state){
     });
   });
   const period={past:"Past, before Aurora",present:"Present, System 1.0 to 1.5",future:"Future, planned"}[state.period];
-  scCap.innerHTML=`<b>${period}.</b> 1 low, 5 high. Red bars are costs to bring down; blue bars are things to raise. * handoff counts are program estimates, to confirm.`;
+  scCap.innerHTML=`<b>${period}.</b> 1 low, 5 high. Red bars are costs to bring down; blue bars are things to raise. * handoff counts are program assessments.`;
 }
 
 /* PAINS: pain -> answer rows */

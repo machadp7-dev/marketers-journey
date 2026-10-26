@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From the long wait to the clear run</title>
+<style>
+/* ============================================================
+   TOKENS. Swap palette here. Everything else reads these.
+   ============================================================ */
+:root{
+  --paper:#F7F4EC;        /* page */
+  --paper-2:#EFEBE0;      /* panel wash */
+  --ink:#1F1F1C;          /* text */
+  --ink-2:#5B5950;        /* secondary text */
+  --rule:#D9D3C4;         /* hairlines, unlit dots */
+  --accent:#1F4E8C;       /* primary: ownership, marketer, "lit" */
+  --accent-2:#B84A3A;     /* pain, drops, delivery */
+  --lab:#8A8273;          /* Lab / agency / partner nodes */
+  --claim:#C9A227;        /* pending data */
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --t:600ms;              /* base transition */
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-reduced-motion: reduce){ :root{ --t:0ms; } }
+
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:var(--serif);font-size:19px;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+/* ---------- Masthead ---------- */
+.mast{max-width:1180px;margin:0 auto;padding:56px 24px 32px}
+.mast h1{font-weight:500;font-size:clamp(34px,5vw,58px);line-height:1.05;letter-spacing:-.01em;margin:0 0 18px;max-width:18ch}
+.mast p.dek{font-size:21px;color:var(--ink-2);max-width:60ch;margin:0 0 10px}
+.mast p.by{font-family:var(--sans);font-size:13px;color:var(--ink-2);margin:0}
+
+/* ---------- Scrolly layout ---------- */
+.scrolly{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:48px;align-items:start}
+.steps{padding:30vh 0 40vh}
+.step{min-height:70vh;padding:0 0 18vh;opacity:.32;transition:opacity var(--t) var(--ease)}
+.step.is-active{opacity:1}
+.step .when{font-family:var(--sans);font-size:13px;color:var(--ink-2);margin:0 0 10px}
+.step h2{font-size:27px;line-height:1.2;font-weight:500;margin:0 0 14px;letter-spacing:-.005em}
+.step p{margin:0 0 14px}
+.step .fine{font-family:var(--sans);font-size:13px;line-height:1.45;color:var(--ink-2)}
+.step .num{color:var(--accent-2)}
+
+.panel-wrap{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center}
+.panel{width:100%;height:min(86vh,760px);position:relative;background:var(--paper-2);border-radius:6px;overflow:hidden}
+
+/* ---------- Voice card (avatar + quote), persistent ---------- */
+.voice{position:absolute;top:22px;right:22px;width:min(44%,330px);display:flex;gap:12px;align-items:flex-start;z-index:3;
+  transition:opacity var(--t) var(--ease), transform var(--t) var(--ease)}
+.voice.is-empty{opacity:0}
+.avatar{flex:0 0 46px;width:46px;height:46px;border-radius:50%;background:var(--accent);position:relative;overflow:hidden}
+.avatar::before{content:"";position:absolute;left:50%;top:9px;width:16px;height:16px;border-radius:50%;background:var(--paper);transform:translateX(-50%)}
+.avatar::after{content:"";position:absolute;left:50%;top:28px;width:30px;height:30px;border-radius:50%;background:var(--paper);transform:translateX(-50%)}
+.avatar.lab{background:var(--lab)}
+.voice blockquote{margin:0;font-size:16px;line-height:1.4}
+.voice blockquote p{margin:0 0 6px}
+.voice cite{display:block;font-family:var(--sans);font-style:normal;font-size:12px;color:var(--ink-2)}
+.voice .silent{font-family:var(--sans);font-size:13px;color:var(--ink-2);line-height:1.4;margin:0}
+
+/* ---------- Scene stage ---------- */
+.stage{position:absolute;inset:0;padding:24px}
+.scene{position:absolute;inset:0;padding:110px 24px 24px;opacity:0;visibility:hidden;transition:opacity var(--t) var(--ease), visibility 0s linear var(--t)}
+.scene.is-on{opacity:1;visibility:visible;transition-delay:0s}
+.scene svg{width:100%;height:100%;display:block}
+.scene .cap{position:absolute;left:24px;bottom:22px;right:24px;font-family:var(--sans);font-size:13px;line-height:1.4;color:var(--ink-2)}
+.scene .cap b{color:var(--ink);font-weight:600}
+
+/* dots */
+.dot{fill:var(--rule);transition:fill var(--t) var(--ease)}
+.dot.lit{fill:var(--accent)}
+.dot.lit.pain{fill:var(--accent-2)}
+.glabel{font-family:var(--sans);font-size:12px;fill:var(--ink-2)}
+.gbig{font-family:var(--serif);font-size:30px;fill:var(--ink)}
+.gbig.pain{fill:var(--accent-2)}
+.gbig.good{fill:var(--accent)}
+
+/* journey */
+.jline{stroke:var(--rule);stroke-width:2;fill:none}
+.jnode{fill:var(--lab);stroke:var(--paper-2);stroke-width:2;transition:fill var(--t) var(--ease), r var(--t) var(--ease), opacity var(--t) var(--ease)}
+.jnode.mk{fill:var(--accent)}
+.jnode.off{opacity:0}
+.jphase{font-family:var(--sans);font-size:12px;fill:var(--ink-2);letter-spacing:.02em}
+.jname{font-family:var(--sans);font-size:10.5px;fill:var(--ink-2)}
+.jbadge{fill:var(--claim);opacity:0;transition:opacity var(--t) var(--ease)}
+.jbadge.measured{fill:var(--accent)}
+.jbadge.on{opacity:1}
+.jwall{fill:var(--accent-2);opacity:0;transition:opacity var(--t) var(--ease), transform var(--t) var(--ease)}
+.jwall.on{opacity:.9}
+.jq{font-family:var(--serif);font-size:14px;fill:var(--ink);opacity:0;transition:opacity var(--t) var(--ease)}
+.jq.on{opacity:1}
+
+/* bars */
+.bar{fill:var(--accent);transition:width var(--t) var(--ease), fill var(--t) var(--ease)}
+.bar.pain{fill:var(--accent-2)}
+.bar.ghost{fill:var(--rule)}
+.blabel{font-family:var(--sans);font-size:14px;fill:var(--ink)}
+.bval{font-family:var(--sans);font-size:14px;fill:var(--ink-2)}
+.bhead{font-family:var(--sans);font-size:12px;fill:var(--ink-2);letter-spacing:.02em}
+
+/* systems */
+.sysnode{fill:var(--paper);stroke:var(--accent);stroke-width:1.5;transition:opacity var(--t) var(--ease), transform var(--t) var(--ease)}
+.sysnode.out{stroke:var(--accent-2);stroke-dasharray:4 3}
+.sysnode.hide{opacity:0}
+.systext{font-family:var(--sans);font-size:11.5px;fill:var(--ink);transition:opacity var(--t) var(--ease)}
+.systext.hide{opacity:0}
+.sysbox{fill:none;stroke:var(--rule);stroke-dasharray:3 4}
+.syslink{stroke:var(--rule);stroke-width:1.2;fill:none;transition:opacity var(--t) var(--ease)}
+.syslink.hide{opacity:0}
+.jname.hide{opacity:0}
+
+/* act tracker */
+.acts{position:absolute;left:22px;bottom:16px;display:flex;gap:14px;font-family:var(--sans);font-size:12px;color:var(--ink-2);z-index:3}
+.acts span{display:flex;align-items:center;gap:6px}
+.acts span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--rule);transition:background var(--t) var(--ease)}
+.acts span.on{color:var(--ink)}
+.acts span.on::before{background:var(--accent)}
+.scene .cap{bottom:44px}
+/* title scene */
+.scene-title{padding:0;display:flex;align-items:center;justify-content:center}
+.tcard{max-width:420px;padding:0 36px;text-align:left}
+.tcard .n{font-family:var(--sans);font-size:13px;color:var(--ink-2);margin:0 0 10px}
+.tcard h3{font-size:44px;line-height:1.02;font-weight:500;margin:0 0 18px;letter-spacing:-.01em}
+.tcard .line{font-size:22px;line-height:1.3;margin:0 0 22px}
+.tcard .ev{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--ink-2);margin:0;padding-top:14px;border-top:1px solid var(--rule)}
+.tcard .ev b{color:var(--ink);font-weight:600}
+.tcard .ev .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11.5px;margin-right:6px;color:#fff;background:var(--accent)}
+.tcard .ev .tag.claim{background:var(--claim)}
+.tcard .ev .tag.target{background:var(--lab)}
+.step.is-title{min-height:50vh}
+.step.is-title .kick{font-family:var(--sans);font-size:13px;color:var(--ink-2);margin:0 0 8px}
+.step.is-title h2{font-size:34px}
+@media (max-width:860px){ .tcard h3{font-size:28px} .tcard .line{font-size:17px} .tcard{padding:0 18px} .acts{left:12px;bottom:8px} .scene .cap{bottom:30px} }
+
+/* scorecard */
+.sc-h{font-family:var(--sans);font-size:12px;fill:var(--ink-2);letter-spacing:.02em}
+.sc-l{font-family:var(--sans);font-size:12.5px;fill:var(--ink)}
+.sc-n{font-family:var(--serif);font-size:13px;fill:var(--ink-2);font-style:italic}
+.sc-seg{fill:var(--rule);transition:fill var(--t) var(--ease)}
+.sc-seg.on{fill:var(--accent)}
+.sc-seg.on.pain{fill:var(--accent-2)}
+/* pain -> answer */
+.ps-pain{font-family:var(--serif);font-size:15px;fill:var(--ink)}
+.ps-ans{font-family:var(--sans);font-size:12.5px;fill:var(--ink)}
+.ps-tag{font-family:var(--sans);font-size:10.5px;fill:#fff}
+.ps-tagbg{fill:var(--accent)} .ps-tagbg.claim{fill:var(--claim)} .ps-tagbg.target{fill:var(--lab)} .ps-tagbg.open{fill:var(--accent-2)}
+.ps-arrow{stroke:var(--rule);stroke-width:1.5;fill:none}
+.ps-row{transition:opacity var(--t) var(--ease)}
+
+/* sources */
+.sources{max-width:1180px;margin:0 auto;padding:40px 24px 96px;font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.sources h3{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--ink);margin:0 0 12px}
+.sources ul{padding-left:18px;margin:0 0 12px}
+
+/* ---------- Mobile ---------- */
+@media (max-width:860px){
+  body{font-size:17px}
+  .scrolly{display:flex;flex-direction:column;padding:0 18px}
+  .panel-wrap{order:-1;position:sticky;top:0;height:auto;width:100%;align-self:stretch;z-index:2;padding:8px 0;background:var(--paper)}
+  .steps{width:100%}
+  .panel{height:46svh;min-height:330px}
+  .voice{position:absolute;top:10px;left:12px;right:12px;width:auto}
+  .voice blockquote{font-size:13.5px}
+  .avatar{flex-basis:34px;width:34px;height:34px}
+  .avatar::before{top:6px;width:12px;height:12px}
+  .avatar::after{top:20px;width:22px;height:22px}
+  .scene{padding:86px 12px 30px}
+  .scene .cap{left:12px;right:12px;bottom:10px;font-size:11.5px}
+  .steps{padding:10vh 0 30vh}
+  .step{min-height:auto;padding:0 0 42vh;opacity:1}
+  .step h2{font-size:23px}
+  .mast{padding:36px 18px 18px}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <h1>The marketer’s road: past, present and future</h1>
+  <p class="dek">In the past, marketers wanted reviews and approvals to be faster and to own their content. Today they have both. What came with it is a more complex process and more roles on one desk, and outcomes not yet at the standard marketers want. Closing that gap is what the future is for. This is the measured story, in their words and in the numbers, from February 2025 to the 2027 plan.</p>
+  <p class="by">Customer Experience Suite · marketer surveys Feb 2025 to May 2026, Advance Team interviews June 2025, Composer workshop July 2026 · Confidential, internal use only</p>
+</header>
+
+<section class="scrolly">
+  <div class="steps" id="steps"></div>
+  <div class="panel-wrap">
+    <div class="panel" aria-live="polite">
+      <div class="voice" id="voice"></div>
+      <div class="stage" id="stage"></div>
+      <div class="acts" id="acts"><span data-act="past">Past</span><span data-act="present">Present</span><span data-act="future">Future</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sources" id="sources"></section>
+
+<script>
+/* ============================================================
+   CONTENT CONFIG. Edit text, numbers and quotes here.
+   Attribution rule: role and date only.
+   ============================================================ */
+const CONTENT = {
+  steps: [
+    {
+      act:"past", title:true,
+      when:"Before · to February 2025",
+      h:"Past: the long wait",
+      body:`<p>Campaign creation and operations were fully reliant on external agencies. Speed and ownership were the pain.</p>`,
+      quote:null,
+      scene:"title", state:{ n:"01 · Past · to February 2025", h:"The long wait", line:"Campaign creation and operations were fully reliant on external agencies. Speed and ownership were the pain.", ev:`<span class="tag">measured</span> Baseline survey, Feb 2025, pilot teams, n=41. Road from 13 Advance Team interviews, June 2025.` }
+    },
+    {
+      act:"past",
+      when:"February 2025 · before Aurora · 41 marketers surveyed",
+      h:"Brief the agency, then wait.",
+      body:`<p><span class="num">22%</span> were satisfied with how derivative content got made and launched. Only <span class="num">7%</span> agreed they could get an asset to market quickly, and <span class="num">17%</span> rated review timelines as efficient. Quality of their own content they rated 81%, because agencies made it.</p>
+             <p class="fine">Top-3-box agreement on a 7-point scale.</p>`,
+      quote:{ text:"Derivative content with AORs is still ridiculously expensive and time-consuming. Moving to Aurora is going to be such a game changer.", who:"Marketer, 2025" },
+      scene:"dots", state:{ groups:[ {label:"Satisfied with the process, before Aurora", lit:22, big:"22%", tone:"pain"} ] }
+    },
+    {
+      act:"past",
+      when:"The road before Aurora",
+      h:"Less in-house capability, more manual work.",
+      body:`<p>Agencies owned the creation. Reviews took weeks. Marketers waited between those two with no visibility or control. Four steps on the road; the marketer touched two of them and two systems.</p>
+             <p class="fine">Road before Aurora from the June 2025 Advance Team interviews.</p>`,
+      quote:null,
+      scene:"journey", state:{ steps:"before", wall:null, badges:[], q:null }
+    },
+    {
+      act:"past",
+      when:"The campaign and the marketer, before",
+      h:"Slow, expensive, and not hers.",
+      body:`<p>The campaign side: long turnaround, many handoffs, cost that scaled with volume, little room to scale. The marketer side: low effort and low ownership, because the work happened elsewhere; high pain, because the waiting did not.</p>
+             <p class="fine">Pain and ownership from the marketer surveys. Effort, steps and tools from the process map and interviews. Turnaround from survey items on speed and review. Cost, handoffs and scale are program assessments. 1 low, 5 high.</p>`,
+      quote:null,
+      scene:"score", state:{ period:"past" }
+    },
+    {
+      act:"present", title:true,
+      when:"System 1.0 to 1.5 · October 2025 to today",
+      h:"Present: the heavy lift",
+      body:`<p>Marketers own the content creation. They also own more tools and more complexity.</p>`,
+      quote:null,
+      scene:"title", state:{ n:"02 · Present · System 1.0 to 1.5 · October 2025 to today", h:"The heavy lift", line:"Marketers own the content creation. They also own more tools and more complexity.", ev:`<span class="tag">measured</span> Pilot June 2025 (n=41); launch Oct 2025 (n=105); six months in, May 2026 (n=136). <span class="tag claim">pending data</span> marks changes shipped since May, to be read in Survey 5.` }
+    },
+    {
+      act:"present",
+      when:"June 2025 · the preview · pilot teams only, 41 surveyed",
+      h:"What the present feels like, for the teams who got there first.",
+      body:`<p>Advance Teams got Aurora first, with a dedicated Lab and time to build shortcuts. <span class="num">86%</span> were satisfied. Ownership and creation reached 90%. Speed went from 7% to 67%. And the sentence that explains the next year was already spoken.</p>
+             <p class="fine">Pilot population only. Small, self-selected, early. Directional, not a forecast for everyone.</p>`,
+      quote:{ text:"I can make something in 1 hour. It is still weeks to AFD.", who:"Advance Team marketer, June 2025" },
+      scene:"dots", state:{ groups:[ {label:"Before Aurora, Feb 2025", lit:22, big:"22%", tone:"pain"}, {label:"Pilot teams, June 2025", lit:86, big:"86%", tone:"good"} ] }
+    },
+    {
+      act:"present",
+      when:"October 2025 · launch · 105 surveyed",
+      h:"At launch, 72% were satisfied. The road had already changed shape.",
+      body:`<p>System 1.0 launched for everyone. Four steps became twelve. The marketer now owns most of the process and took on seven functions that used to belong to agencies and partners: create, check, deploy, measure, track status, annotate, QC.</p>
+             <p class="fine">Survey 3, Oct 2025, n=105, fielded in launch week, so this is expectation more than experience. Steps from the CPO process map, Aug 2026.</p>`,
+      quote:{ text:"A lot of new work is now sitting with marketers. It feels like the full impact of that new ownership on personal bandwidth is not being accounted for.", who:"Marketer, 2025" },
+      scene:"journey", state:{ steps:"now", wall:null, badges:[], q:null }
+    },
+    {
+      act:"present",
+      when:"April to May 2026 · six months in · 136 surveyed",
+      h:"More process, more tools, more pain. And the content is hers now.",
+      body:`<p>Satisfaction fell from 72% to <span class="num">39%</span>. Delivery collapsed: volume <span class="num">34%</span>, speed to market <span class="num">35%</span>, handoffs <span class="num">37%</span>, the lowest scores on the survey. But ownership held: 64% own it, 63% say they are the creator, 81% still want the model. The content is in the marketers’ hands, and so is the weight of it.</p>
+             <p class="fine">Survey 4, Apr 20 to May 2, 2026, n=136. Satisfaction item reworded, so that drop is directional.</p>`,
+      quote:{ text:"Experts in everything is the ideal, but it often feels like jack of all trades, master of none.", who:"Marketer, April 2026" },
+      scene:"bars", state:{ view:"split" }
+    },
+    {
+      act:"present",
+      when:"What the marketer carries now",
+      h:"More responsibility, more complexity.",
+      body:`<p>On one asset, end to end: the CEP, Composer or Adobe Express, the DAM, Workfront, Veeva and Lighthouse. Two systems became six. Four steps became twelve. Seven functions’ worth of work moved onto her desk. Nothing was removed. And the thinking still happens before any of it, in Gemini, outside the system.</p>
+             <p class="fine">Systems from the Marketer Content Journey and the Composer 2.0 data audit. Steps from the CPO process map, Aug 2026.</p>`,
+      quote:{ text:"We haven’t been upskilled to be creative marketers yet forced to become creatives, copy writers, designers, strategist all in one.", who:"Marketer, May 2026" },
+      scene:"systems", state:{ view:"think" }
+    },
+    {
+      act:"present",
+      when:"The campaign and the marketer, today",
+      h:"Faster and hers. Heavier and more complex.",
+      body:`<p>Turnaround came down, cost came down, scale went up. Ownership went up. So did effort, steps and tools. Pain barely moved: it changed address, from waiting on the agency to carrying the work.</p>
+             <p class="fine">Same sources and scale as the past scorecard. Handoff counts are program assessments.</p>`,
+      quote:{ text:"Capacity cap is at odds with the direction to increase assets with less agency spend.", who:"Marketer, May 2026" },
+      scene:"score", state:{ period:"present" }
+    },
+    {
+      act:"present",
+      when:"Pain points addressed",
+      h:"Each change answers a pain. Two are confirmed by the data. The rest are pending the next survey.",
+      body:`<p>Review time: three-tier review and auto-tiering, and the data confirms it, 17% to 68%. Not being the creator: Composer and Adobe Express, confirmed, 34% to 63%, with Composer use rising from 51 to 94 assets a month. Finding content: the DAM. Knowing where an asset stands: Lighthouse. Content coming back from review: prechecks.</p>
+             <p class="fine">Data confirmed means rated by marketers in May 2026. Pending data means shipped or planned since; Survey 5 is the read.</p>`,
+      quote:null,
+      scene:"pains", state:{ period:"present" }
+    },
+    {
+      act:"future", title:true,
+      when:"Composer 2.0 late 2026 · Enterprise Orchestration 2027",
+      h:"Future",
+      body:`<p>Marketers ask for it. The system carries it.</p>`,
+      quote:null,
+      scene:"title", state:{ n:"03 · Future · late 2026 to 2027", h:"The clear run", line:"Marketers ask for it. The system carries it.", ev:`<span class="tag target">target</span> Design North vision and Composer 2.0 scope. Validation with marketers planned for November; Survey 5 to follow.` }
+    },
+    {
+      act:"future",
+      when:"What problem the future is solving",
+      h:"Keep the ownership. Take off the weight. Get the quality.",
+      body:`<p>The thinking happens outside the tool: one conversation from insight to draft to review, so Composer 2.0 sees the idea, not only the output. Content comes back from review: automated prechecks and tier assignment. Manual re-entry into regulatory systems: Veeva connected to submission. Volume and personalization: full-draft creation, new claims, multi-channel. Add it up and the outcome is the goal: marketers with more control, making better content.</p>
+             <p class="fine">Target, not evidence. Fewer than 5% of Workfront records join to a Veeva ID today, so until that is fixed the surveys are the only end-to-end read.</p>`,
+      quote:null,
+      scene:"pains", state:{ period:"future" }
+    },
+    {
+      act:"future",
+      when:"The campaign and the marketer, as planned",
+      h:"What the scorecard should look like if the plan lands.",
+      body:`<p>Turnaround, handoffs and cost down. Scale up. Ownership stays high. Effort, steps and tools come back down to where they were before, and pain goes lower than it has ever been. These are targets. Survey 5 and the usage data are where they become numbers.</p>
+             <p class="fine">Future values are program targets, not measurements.</p>`,
+      quote:null,
+      scene:"score", state:{ period:"future" }
+    }
+  ],
+
+  sources: {
+    title: "What this is built on, and what it cannot say",
+    items: [
+      "Aurora Baseline Survey, Marketers (Feb 12 to 18, 2025; pilot teams, 41 completed of ~200 invited). Owned.",
+      "BoFT / Aurora Advance Teams Sentiment: survey June 2025 (n=41) and 13 interviews June 10 to 24, 2025. Owned.",
+      "System 1.0 Survey 3 (Oct 2025, n=105, launch week) and Survey 4 (Apr 20 to May 2, 2026, n=136), consolidated all-waves file, Oct 2026. Owned.",
+      "Content Composer Activation and Personalization Workflow (one observed workshop, July 2026) and the Composer prototype study (11 respondents). Owned.",
+      "Steps and Complexity by Phase (Oct 2026), CPO End-to-End Process map (Aug 2026), Composer 2.0 Data Availability (Sep 2026), Design North Vision of the Experience. Product team materials; items marked pending data are theirs, to be read in Survey 5.",
+      "Employee Sentiment survey open text (C6637S174)."
+    ],
+    caveats: "All figures are top-3-box agreement (5 to 7 on a 7-point scale), self-reported, directional. Populations differ across waves, so trends are movement, not a controlled comparison. The pilot is small and self-selected. Nothing here is causal. Quotes are attributed by role and date only and are under 25 words."
+  }
+};
+
+/* ============================================================
+   DATA used by the scenes (from the consolidated all-waves file)
+   ============================================================ */
+const DATA = {
+  split: [
+    { group:"Delivery collapsed", items:[
+      ["Speed to market", 51, 35, "pain"],
+      ["Volume capability", 51, 34, "pain"],
+      ["Production & handoffs", 41, 37, "pain"] ]},
+    { group:"But ownership held. The content is in the marketers’ hands now", items:[
+      ["Ownership / autonomy", 80, 64, "good"],
+      ["I am the creator", 68, 63, "good"],
+      ["Personalization", 67, 52, "good"] ]}
+  ],
+  pilot: [
+    { group:"Everyone outside the pilot", items:[
+      ["Satisfied overall", 67, 35, "pain"],
+      ["Ownership", 76, 60, "pain"] ]},
+    { group:"Pilot, a year in (24 people)", items:[
+      ["Right tools & processes", 44, 83, "good"],
+      ["Production & handoffs", 35, 54, "good"],
+      ["Skills & knowledge", 72, 83, "good"] ]}
+  ],
+  journey: {
+    before: [
+      {n:"Brief the agency", ph:"Plan", mk:true},
+      {n:"Review agency work", ph:"Create", mk:true},
+      {n:"CMLR review", ph:"Launch", mk:false},
+      {n:"Agency deploys", ph:"Launch", mk:false}
+    ],
+    now: [
+      {n:"Identify need (CEP)", ph:"Plan", mk:true},
+      {n:"Kickoff", ph:"Plan", mk:true},
+      {n:"Partner setup", ph:"Plan", mk:false},
+      {n:"Create in Composer / AEx", ph:"Create", mk:true},
+      {n:"Lab assistance", ph:"Create", mk:false},
+      {n:"Lab submission pkg", ph:"Create", mk:false},
+      {n:"CMLR review (tiers)", ph:"Launch", mk:false},
+      {n:"Refinement", ph:"Launch", mk:true},
+      {n:"Production", ph:"Launch", mk:false},
+      {n:"Lab final submission", ph:"Launch", mk:false},
+      {n:"Final approval (AFD)", ph:"Launch", mk:false},
+      {n:"Deployment", ph:"Launch", mk:false}
+    ],
+    future: [
+      {n:"Insight", ph:"Plan", mk:true},
+      {n:"One conversation to draft", ph:"Create", mk:true},
+      {n:"Auto prechecks + tier", ph:"Create", mk:false},
+      {n:"CMLR review", ph:"Launch", mk:false},
+      {n:"Veeva to submission", ph:"Launch", mk:false},
+      {n:"Deploy + measure", ph:"Launch", mk:true}
+    ]
+  },
+  score: {
+    campaign:["Turnaround","Handoffs","Cost","Scale"],
+    marketer:["Effort","Pain","Steps","Tools","Ownership"],
+    past:    { campaign:[5,5,5,2], marketer:[2,5,1,1,1], notes:{Handoffs:"17*",Steps:"4",Tools:"2"} },
+    present: { campaign:[3,4,3,3], marketer:[5,4,5,5,4], notes:{Handoffs:"10*",Steps:"12",Tools:"7"} },
+    future:  { campaign:[2,2,2,5], marketer:[2,1,2,2,5], notes:{Handoffs:"5*",Steps:"4",Tools:"3"} }
+  },
+  pains: {
+    present:[
+      {pain:"Review takes weeks", ans:"Three-tier review, auto-tiering", tag:"data confirmed", kind:"", n:"17% → 68%"},
+      {pain:"Not the creator of my content", ans:"Composer, Adobe Express", tag:"data confirmed", kind:"", n:"34% → 63%"},
+      {pain:"Can’t find existing content", ans:"DAM", tag:"pending data", kind:"claim", n:"launched"},
+      {pain:"Don’t know where my asset stands", ans:"Lighthouse", tag:"pending data", kind:"claim", n:"launched"},
+      {pain:"Content comes back from review", ans:"Prechecks, pre-review check", tag:"pending data", kind:"claim", n:"planned"}
+    ],
+    future:[
+      {pain:"Thinking happens outside the tool", ans:"One conversation, insight to review", tag:"planned", kind:"target", n:"2.0"},
+      {pain:"Content comes back from review", ans:"Automated prechecks and tiering", tag:"planned", kind:"target", n:"2.0"},
+      {pain:"Manual re-entry into regulatory", ans:"Veeva connected to submission", tag:"planned", kind:"target", n:"2027"},
+      {pain:"Volume and personalization", ans:"Full draft, new claims, multi-channel", tag:"planned", kind:"target", n:"2.0"},
+      {pain:"Quality of what marketers make", ans:"The outcome: more control, better content", tag:"the goal", kind:"", n:""}
+    ]
+  },
+  systems: {
+    inside: ["CEP","Composer / AEx","DAM","Workfront","Veeva (VVPM)","Lighthouse"],
+    before: ["Email","Veeva, via agency"],
+    outside: ["Gemini (thinking)"]
+  }
+};
+
+/* ============================================================
+   RENDERING. You should not need to edit below this line.
+   ============================================================ */
+const NS = "http://www.w3.org/2000/svg";
+const el = (t,a={},txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isMobile = ()=> matchMedia("(max-width:860px)").matches;
+
+/* ---- text steps ---- */
+const stepsRoot = document.getElementById("steps");
+CONTENT.steps.forEach((s,i)=>{
+  const d=document.createElement("article"); d.className="step"+(s.title?" is-title":""); d.dataset.i=i;
+  d.innerHTML=`<p class="when">${s.when}</p><h2>${s.h}</h2>${s.body}`;
+  stepsRoot.appendChild(d);
+});
+
+/* ---- sources ---- */
+(()=>{const r=document.getElementById("sources");const s=CONTENT.sources;
+ r.innerHTML=`<h3>${s.title}</h3><ul>${s.items.map(i=>`<li>${i}</li>`).join("")}</ul><p>${s.caveats}</p>`;})();
+
+/* ---- voice card ---- */
+const voice=document.getElementById("voice");
+function setVoice(step){
+  const two = step.scene==="bars" && step.state.view==="pilot";
+  const av = two ? `<div class="avatar" title="Pilot marketer"></div><div class="avatar lab" style="margin-left:-18px" title="Marketer outside the pilot"></div>` : `<div class="avatar"></div>`;
+  if(step.quote){
+    voice.classList.remove("is-empty");
+    voice.innerHTML=`${av}<blockquote><p>“${step.quote.text}”</p><cite>${step.quote.who}</cite></blockquote>`;
+  }else{
+    voice.classList.add("is-empty");
+    voice.innerHTML="";
+  }
+}
+
+/* ---- scenes ---- */
+const stage=document.getElementById("stage");
+const scenes={};
+function mkScene(id){const d=document.createElement("div");d.className="scene";d.id="scene-"+id;stage.appendChild(d);scenes[id]=d;return d;}
+
+/* DOTS: up to two 10x10 groups of diamonds */
+const dotsScene=mkScene("dots");
+const dotsSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"Share of marketers satisfied, shown as dots"});
+dotsScene.appendChild(dotsSvg);
+const dotsCap=document.createElement("div");dotsCap.className="cap";dotsScene.appendChild(dotsCap);
+const dotGroups=[];
+for(let g=0;g<2;g++){
+  const grp=el("g",{class:"dotgroup"});
+  const dots=[];
+  for(let i=0;i<100;i++){
+    const r=Math.floor(i/10), c=i%10;
+    const d=el("rect",{class:"dot",x:0,y:0,width:16,height:16,rx:1,transform:`translate(${c*26+8},${r*26+8}) rotate(45 8 8)`});
+    d.style.transitionDelay = reduced?"0ms":`${(i%10)*12 + Math.floor(i/10)*10}ms`;
+    grp.appendChild(d);dots.push(d);
+  }
+  const big=el("text",{class:"gbig",x:0,y:300},"");
+  const lab=el("text",{class:"glabel",x:0,y:324},"");
+  grp.appendChild(big);grp.appendChild(lab);
+  dotsSvg.appendChild(grp);
+  dotGroups.push({grp,dots,big,lab});
+}
+function renderDots(state){
+  const n=state.groups.length;
+  dotGroups.forEach((G,gi)=>{
+    const s=state.groups[gi];
+    if(!s){G.grp.style.opacity=0;return;}
+    G.grp.style.opacity=1;
+    G.grp.setAttribute("transform",`translate(${n===1?170:gi*300+20},40)`);
+    G.dots.forEach((d,i)=>{d.classList.toggle("lit",i<s.lit);d.classList.toggle("pain",s.tone==="pain");});
+    G.big.textContent=s.big||"";G.big.setAttribute("class","gbig "+(s.tone||""));
+    G.lab.textContent=s.label||"";
+  });
+  dotsCap.innerHTML = n===1 && state.groups[0].lit===0
+    ? "Each diamond is one in a hundred marketers. They light up as they say they are satisfied with how content gets made and launched."
+    : "Each diamond is one in a hundred respondents who rated the overall process 5, 6 or 7 on a 7-point scale. <b>Different populations</b>: Feb 2025 is the pilot before Aurora; June 2025 is the pilot inside it.";
+}
+
+/* JOURNEY: phases Plan / Create / Launch with nodes */
+const jScene=mkScene("journey");
+const jSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"The road an asset travels, by phase"});
+jScene.appendChild(jSvg);
+const jCap=document.createElement("div");jCap.className="cap";jScene.appendChild(jCap);
+const jLayer=el("g"); jSvg.appendChild(jLayer);
+function renderJourney(state){
+  while(jLayer.firstChild) jLayer.removeChild(jLayer.firstChild);
+  const steps=DATA.journey[state.steps];
+  const phases=["Plan","Create","Launch"];
+  const laneY={Plan:110,Create:210,Launch:310};
+  // phase labels + lanes
+  phases.forEach(p=>{
+    jLayer.appendChild(el("text",{class:"jphase",x:20,y:laneY[p]-34},p.toUpperCase()));
+    jLayer.appendChild(el("line",{class:"jline",x1:20,y1:laneY[p],x2:580,y2:laneY[p]}));
+  });
+  // positions: distribute each phase's steps across the lane
+  const byPhase={};steps.forEach((s,i)=>{(byPhase[s.ph]=byPhase[s.ph]||[]).push({...s,i});});
+  const pos=[];
+  phases.forEach(p=>{const arr=byPhase[p]||[];arr.forEach((s,k)=>{
+    const x=arr.length===1?300:40+k*(520/Math.max(arr.length-1,1));
+    pos[s.i]={x,y:laneY[p],s};
+  });});
+  // connectors between consecutive steps
+  for(let i=0;i<pos.length-1;i++){
+    const a=pos[i],b=pos[i+1];
+    if(a.y===b.y) continue;
+    jLayer.appendChild(el("path",{class:"jline",d:`M${a.x},${a.y} C${a.x},${(a.y+b.y)/2} ${b.x},${(a.y+b.y)/2} ${b.x},${b.y}`,"stroke-dasharray":"3 4"}));
+  }
+  // wall (bottleneck) behind nodes
+  if(state.wall==="lab"){
+    const i=steps.findIndex(s=>/Lab assistance|Lab submission/.test(s.n));
+    const p=pos[i>=0?i:4];
+    const w=el("rect",{class:"jwall on",x:p.x-14,y:p.y-26,width:6,height:52,rx:2});
+    jLayer.appendChild(w);
+    jLayer.appendChild(el("text",{class:"jname",x:p.x-16,y:p.y+42,fill:"var(--accent-2)","text-anchor":"end"},"capacity wall"));
+  }
+  // nodes
+  pos.forEach((p,i)=>{
+    const node=el("circle",{class:"jnode"+(p.s.mk?" mk":""),cx:p.x,cy:p.y,r:p.s.mk?11:8});
+    node.style.transitionDelay=reduced?"0ms":`${i*40}ms`;
+    jLayer.appendChild(node);
+    const anchor = p.x<80 ? "start" : p.x>520 ? "end" : "middle";
+    const tx = anchor==="start" ? p.x-12 : anchor==="end" ? p.x+12 : p.x;
+    const t=el("text",{class:"jname",x:tx,y:p.y+(i%2?28:-20),"text-anchor":anchor},p.s.n);
+    jLayer.appendChild(t);
+    const b=state.badges.find(x=>x.endsWith(":"+(i+1)));
+    if(b){
+      const kind=b.split(":")[0];
+      const badge=el("circle",{class:"jbadge "+(kind==="measured"?"measured":"")+" on",cx:p.x+12,cy:p.y-12,r:5});
+      badge.style.transitionDelay=reduced?"0ms":`${300+i*60}ms`;
+      jLayer.appendChild(badge);
+    }
+  });
+  // future questions
+  if(state.q){
+    state.q.forEach((q,k)=>{
+      const t=el("text",{class:"jq on",x:40,y:372+k*20},q);
+      t.style.transitionDelay=reduced?"0ms":`${400+k*200}ms`;
+      jLayer.appendChild(t);
+    });
+  }
+  // legend
+  const lg=el("g",{transform:"translate(380,370)"});
+  lg.appendChild(el("circle",{class:"jnode mk",cx:0,cy:0,r:6}));lg.appendChild(el("text",{class:"jname",x:12,y:4},"marketer owns"));
+  lg.appendChild(el("circle",{class:"jnode",cx:0,cy:20,r:6}));lg.appendChild(el("text",{class:"jname",x:12,y:24},"Lab, agency, partner, review"));
+  if(state.badges.length){
+    lg.appendChild(el("circle",{class:"jbadge on",cx:0,cy:40,r:5}));lg.appendChild(el("text",{class:"jname",x:12,y:44},"pending data"));
+    lg.appendChild(el("circle",{class:"jbadge measured on",cx:0,cy:60,r:5}));lg.appendChild(el("text",{class:"jname",x:12,y:64},"measured"));
+  }
+  jLayer.appendChild(lg);
+  const counts={before:"4 steps, 2 owned by the marketer, 2 systems.",now:"12 steps, 4 owned by the marketer, 6 systems, plus checking and measuring with no step on the map.",future:"Target: one conversation from insight to review. No research behind this flow yet."};
+  jCap.innerHTML=`<b>${state.steps==="before"?"Before Aurora":state.steps==="now"?"System 1.0, Aug 2026 map":"2027 plan"}.</b> ${counts[state.steps]}`;
+}
+
+/* BARS: two groups, wave 1 -> wave 2 */
+const bScene=mkScene("bars");
+const bSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"Survey items, launch week to six months in"});
+bScene.appendChild(bSvg);
+const bCap=document.createElement("div");bCap.className="cap";bScene.appendChild(bCap);
+const bLayer=el("g");bSvg.appendChild(bLayer);
+function renderBars(state){
+  while(bLayer.firstChild) bLayer.removeChild(bLayer.firstChild);
+  const groups=DATA[state.view];
+  let y=24;const x0=210,W=300;
+  groups.forEach(g=>{
+    bLayer.appendChild(el("text",{class:"bhead",x:20,y:y+4},g.group.toUpperCase()));y+=22;
+    g.items.forEach(([name,a,b,tone])=>{
+      bLayer.appendChild(el("text",{class:"blabel",x:20,y:y+13},name));
+      bLayer.appendChild(el("rect",{class:"bar ghost",x:x0,y:y,height:10,width:W*a/100,rx:2}));
+      const bar=el("rect",{class:"bar "+tone,x:x0,y:y+12,height:10,width:0,rx:2});
+      bLayer.appendChild(bar);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>bar.setAttribute("width",W*b/100)));
+      bLayer.appendChild(el("text",{class:"bval",x:x0+W+8,y:y+18},`${a} → ${b}`));
+      y+=44;
+    });
+    y+=18;
+  });
+  // legend
+  const lg=el("g",{transform:`translate(20,${y})`});
+  lg.appendChild(el("rect",{class:"bar ghost",x:0,y:0,width:26,height:8,rx:2}));
+  lg.appendChild(el("text",{class:"bval",x:34,y:8},state.view==="split"?"Oct 2025, launch week":"earlier wave"));
+  lg.appendChild(el("rect",{class:"bar",x:200,y:0,width:26,height:8,rx:2}));
+  lg.appendChild(el("text",{class:"bval",x:234,y:8},state.view==="split"?"May 2026, six months in":"May 2026"));
+  bLayer.appendChild(lg);
+  bCap.innerHTML = state.view==="split"
+    ? "Top-3-box agreement, all respondents, Survey 3 → Survey 4. Moves of ±4 are within sampling noise. The six creation items separate into two factors."
+    : "Outside the pilot: Survey 3 → 4. Pilot: their launch-week read → Survey 4 (24 people). Pilot launch-week ratings were unusually high, so part of any pilot drop is regression.";
+}
+
+/* SYSTEMS: nodes around the marketer */
+const sScene=mkScene("systems");
+const sSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"Systems a marketer touches on one asset"});
+sScene.appendChild(sSvg);
+const sCap=document.createElement("div");sCap.className="cap";sScene.appendChild(sCap);
+const sLayer=el("g");sSvg.appendChild(sLayer);
+function renderSystems(state){
+  while(sLayer.firstChild) sLayer.removeChild(sLayer.firstChild);
+  const cx=300,cy=195;
+  // boundary
+  sLayer.appendChild(el("rect",{class:"sysbox",x:70,y:50,width:460,height:290,rx:14}));
+  sLayer.appendChild(el("text",{class:"jname",x:84,y:70},"inside the system"));
+  // marketer
+  sLayer.appendChild(el("circle",{cx:cx,cy:cy,r:22,fill:"var(--accent)"}));
+  sLayer.appendChild(el("text",{class:"jname",x:cx,y:cy+40,"text-anchor":"middle"},"marketer"));
+  const inside=DATA.systems.inside, R=118;
+  inside.forEach((name,i)=>{
+    const a=-Math.PI/2+i*(2*Math.PI/inside.length);
+    const x=cx+R*Math.cos(a), y=cy+R*Math.sin(a)*0.78;
+    const link=el("line",{class:"syslink",x1:cx,y1:cy,x2:x,y2:y});
+    const node=el("rect",{class:"sysnode",x:x-46,y:y-13,width:92,height:26,rx:13});
+    const t=el("text",{class:"systext",x:x,y:y+4,"text-anchor":"middle"},name);
+    [link,node,t].forEach(n=>{n.style.transitionDelay=reduced?"0ms":`${i*70}ms`;sLayer.appendChild(n);});
+  });
+  // outside: Gemini
+  const ox=520,oy=100;
+  const olink=el("path",{class:"syslink"+(state.view==="think"?"":" hide"),d:`M${cx},${cy} C${cx+120},${cy-60} ${ox-40},${oy+40} ${ox-48},${oy}`,"stroke-dasharray":"3 4"});
+  const onode=el("rect",{class:"sysnode out"+(state.view==="think"?"":" hide"),x:ox-56,y:oy-13,width:104,height:26,rx:13});
+  const otext=el("text",{class:"systext"+(state.view==="think"?"":" hide"),x:ox-4,y:oy+4,"text-anchor":"middle"},"Gemini (thinking)");
+  const olab=el("text",{class:"jname"+(state.view==="think"?"":" hide"),x:ox-4,y:oy-22,"text-anchor":"middle"},"outside, before any of this");
+  [olink,onode,otext,olab].forEach(n=>sLayer.appendChild(n));
+  // counters
+  const counters = [["systems on one asset","2 → 6"],["steps on the map","4 → 12"],["functions moved in","0 → 7"],["clicks to first draft","15 to 20"]];
+  counters.forEach(([k,v],i)=>{
+    const g=el("g",{transform:`translate(${24+i*142},372)`});
+    g.appendChild(el("text",{class:"gbig",x:0,y:0,style:"font-size:22px"},v));
+    g.appendChild(el("text",{class:"jname",x:0,y:16},k));
+    sLayer.appendChild(g);
+  });
+  sCap.innerHTML = "<b>One asset, end to end.</b> Systems and functions from the Marketer Content Journey; steps from the CPO process map; clicks per draft from the product team.";
+}
+
+/* SCORE: campaign and marketer, 1 to 5 */
+const scScene=mkScene("score");
+const scSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"Campaign and marketer scorecard"});
+scScene.appendChild(scSvg);
+const scCap=document.createElement("div");scCap.className="cap";scScene.appendChild(scCap);
+const scLayer=el("g");scSvg.appendChild(scLayer);
+function renderScore(state){
+  while(scLayer.firstChild) scLayer.removeChild(scLayer.firstChild);
+  const D=DATA.score, P=D[state.period];
+  const cols=[["CAMPAIGN",D.campaign,P.campaign,20],["MARKETER",D.marketer,P.marketer,310]];
+  cols.forEach(([head,labels,vals,x])=>{
+    scLayer.appendChild(el("text",{class:"sc-h",x:x,y:40},head));
+    labels.forEach((lab,i)=>{
+      const y=70+i*52;
+      scLayer.appendChild(el("text",{class:"sc-l",x:x,y:y+4},lab));
+      const pain = (lab==="Pain"||lab==="Effort"||lab==="Turnaround"||lab==="Cost"||lab==="Handoffs");
+      for(let k=0;k<5;k++){
+        const seg=el("rect",{class:"sc-seg"+(k<vals[i]?" on":"")+(pain?" pain":""),x:x+110+k*28,y:y-8,width:24,height:14,rx:2});
+        seg.style.transitionDelay=reduced?"0ms":`${k*70}ms`;
+        scLayer.appendChild(seg);
+      }
+      if(P.notes[lab]) scLayer.appendChild(el("text",{class:"sc-n",x:x+110+5*28+6,y:y+4},P.notes[lab]));
+    });
+  });
+  const period={past:"Past, before Aurora",present:"Present, System 1.0 to 1.5",future:"Future, planned"}[state.period];
+  scCap.innerHTML=`<b>${period}.</b> 1 low, 5 high. Red bars are costs to bring down; blue bars are things to raise. * handoff counts are program assessments.`;
+}
+
+/* PAINS: pain -> answer rows */
+const psScene=mkScene("pains");
+const psSvg=el("svg",{viewBox:"0 0 600 440",role:"img","aria-label":"Pains and what answers them"});
+psScene.appendChild(psSvg);
+const psCap=document.createElement("div");psCap.className="cap";psScene.appendChild(psCap);
+const psLayer=el("g");psSvg.appendChild(psLayer);
+function renderPains(state){
+  while(psLayer.firstChild) psLayer.removeChild(psLayer.firstChild);
+  const rows=DATA.pains[state.period];
+  psLayer.appendChild(el("text",{class:"sc-h",x:20,y:34},"THE PAIN"));
+  psLayer.appendChild(el("text",{class:"sc-h",x:300,y:34},"WHAT ADDRESSES IT"));
+  rows.forEach((r,i)=>{
+    const y=70+i*58;
+    const g=el("g",{class:"ps-row"});
+    g.style.opacity=0; g.style.transitionDelay=reduced?"0ms":`${i*90}ms`;
+    g.appendChild(el("text",{class:"ps-pain",x:20,y:y},r.pain));
+    g.appendChild(el("path",{class:"ps-arrow",d:`M258,${y-5} L290,${y-5}`}));
+    g.appendChild(el("text",{class:"ps-ans",x:300,y:y-1},r.ans));
+    const tw=r.tag.length*6.2+14;
+    g.appendChild(el("rect",{class:"ps-tagbg "+r.kind,x:300,y:y+8,width:tw,height:16,rx:8}));
+    g.appendChild(el("text",{class:"ps-tag",x:307,y:y+19.5},r.tag));
+    if(r.n) g.appendChild(el("text",{class:"sc-n",x:300+tw+8,y:y+20},r.n));
+    psLayer.appendChild(g);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{g.style.opacity=1;}));
+  });
+  psCap.innerHTML = state.period==="present"
+    ? "<b>Data confirmed</b> = rated by marketers, May 2026. <b>Pending data</b> = shipped or planned since; read in Survey 5."
+    : "<b>Planned</b> = in the Composer 2.0 or 2027 scope. <b>The goal</b> = what all of it adds up to.";
+}
+
+/* TITLE: act card */
+const tScene=mkScene("title"); tScene.classList.add("scene-title");
+function renderTitle(state){
+  tScene.innerHTML=`<div class="tcard"><p class="n">${state.n}</p><h3>${state.h}</h3><p class="line">${state.line}</p><p class="ev">${state.ev}</p></div>`;
+}
+
+/* ---- state machine ---- */
+let current=-1;
+const renderers={dots:renderDots,journey:renderJourney,bars:renderBars,systems:renderSystems,title:renderTitle,score:renderScore,pains:renderPains};
+const actsEl=document.getElementById("acts");
+function activate(i){
+  if(i===current) return; current=i;
+  const step=CONTENT.steps[i];
+  document.querySelectorAll(".step").forEach((s,k)=>s.classList.toggle("is-active",k===i));
+  setVoice(step);
+  Object.keys(scenes).forEach(k=>scenes[k].classList.toggle("is-on",k===step.scene));
+  renderers[step.scene](step.state);
+  actsEl.querySelectorAll("span").forEach(a=>a.classList.toggle("on",a.dataset.act===step.act));
+  voice.style.visibility = step.scene==="title" ? "hidden" : "visible";
+}
+
+/* IntersectionObserver: the step crossing the middle band of the viewport wins. Works both directions. */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) activate(+e.target.dataset.i); });
+},{rootMargin: isMobile()? "-45% 0px -35% 0px" : "-40% 0px -45% 0px", threshold:0});
+document.querySelectorAll(".step").forEach(s=>io.observe(s));
+activate(0);
+</script>
+</body>
+</html>
